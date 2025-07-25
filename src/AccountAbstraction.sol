@@ -39,6 +39,7 @@ contract AccountAbstraction is IAccount, Ownable {
         uint256 missingAccountFunds
     ) external requireFromEntryPoint returns (uint256 validationData) {
         validationData = _verifySignature(userOp, userOpHash);
+        _payPrefund(missingAccountFunds);
     }
 
     function execute(
@@ -69,9 +70,11 @@ contract AccountAbstraction is IAccount, Ownable {
         return SIG_VALIDATION_SUCCESS;
     }
 
-    function payPredund(uint256 _missingFunds) internal {
+    function _payPrefund(uint256 _missingFunds) internal {
         if (_missingFunds > 0) {
             (bool success, ) = i_entryPoint.call{value: _missingFunds}("");
         }
     }
+
+    receive() external payable {}
 }
