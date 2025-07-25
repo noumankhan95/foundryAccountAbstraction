@@ -19,7 +19,7 @@ contract DeployContract is Script {
 
         vm.startBroadcast(config.account);
         AccountAbstraction account = new AccountAbstraction(config.entryPoint);
-        account.transferOwnership(msg.sender);
+        account.transferOwnership(config.account);
         vm.stopBroadcast();
 
         return (helperConfig, account);

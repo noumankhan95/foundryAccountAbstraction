@@ -7,17 +7,18 @@ import {HelperConfig} from "script/HelperConfig.s.sol";
 import {IEntryPoint} from "lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
 import {MessageHashUtils} from "lib/openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol";
 
-contract generatePackedUserOp is Script {
+contract GeneratePackedUserOp is Script {
     using MessageHashUtils for bytes32;
+    uint256 private constant FOUNDRY_DEFAULT_PRIVATE_KEY =
+        0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
 
     function generateSignedUserOp(
         bytes memory callData,
-        address sender,
         HelperConfig.NetworkConfig memory config
-    ) internal returns (PackedUserOperation memory) {
-        uint256 nonce = vm.getNonce(sender);
+    ) public returns (PackedUserOperation memory) {
+        uint256 nonce = vm.getNonce(config.account);
         PackedUserOperation memory userOp = _generateUnsignedOps(
-            sender,
+            config.account,
             nonce,
             callData
         );
@@ -25,8 +26,16 @@ contract generatePackedUserOp is Script {
             userOp
         );
         bytes32 digest = userOpHash.toEthSignedMessageHash();
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(config.account, digest);
-        userOp.signature = abi.encodePacked(r, s, v);
+        if (block.chainid == 31337) {
+            (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+                FOUNDRY_DEFAULT_PRIVATE_KEY,
+                digest
+            );
+            userOp.signature = abi.encodePacked(r, s, v);
+        } else {
+            (uint8 v, bytes32 r, bytes32 s) = vm.sign(config.account, digest);
+            userOp.signature = abi.encodePacked(r, s, v);
+        }
 
         return userOp;
     }

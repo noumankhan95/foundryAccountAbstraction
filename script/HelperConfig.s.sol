@@ -53,14 +53,14 @@ contract HelperConfig is Script {
             });
     }
 
-    function getAnvilConfig() internal pure returns (NetworkConfig memory) {
-        vm.startBroadcast(FOUNDRY_DEFAULT_SENDER);
+    function getAnvilConfig() internal returns (NetworkConfig memory) {
+        vm.startBroadcast(DEFAULT_WALLET);
         EntryPoint entryPoint = new EntryPoint();
         vm.stopBroadcast();
         return
             NetworkConfig({
                 entryPoint: address(entryPoint),
-                account: FOUNDRY_DEFAULT_SENDER
+                account: DEFAULT_WALLET
             });
     }
 
