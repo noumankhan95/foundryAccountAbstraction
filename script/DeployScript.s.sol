@@ -5,8 +5,8 @@ import {AccountAbstraction} from "../src/AccountAbstraction.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 
 contract DeployContract is Script {
-    function run() external {
-        deployAccount();
+    function run() external returns (HelperConfig, AccountAbstraction) {
+        return deployAccount();
     }
 
     function deployAccount()
