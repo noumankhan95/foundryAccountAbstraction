@@ -103,6 +103,7 @@ contract MinimalAccountTest is Test {
             helperConfig.getConfigByChainId(block.chainid).entryPoint
         ).getUserOpHash(packedOp);
         bytes32 digest = hashedUserOp.toEthSignedMessageHash();
+        vm.deal(address(account), 20e18);
         vm.prank(helperConfig.getConfigByChainId(block.chainid).entryPoint);
         uint256 result = account.validateUserOp(packedOp, hashedUserOp, 1e18);
         assertEq(result, 0);
