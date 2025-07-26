@@ -87,4 +87,24 @@ contract MinimalAccountTest is Test {
         );
         assertEq(signer, account.owner());
     }
+
+    function testValidationOfUserOps() public {
+        GeneratePackedUserOp packedUserOp = new GeneratePackedUserOp();
+        bytes memory funcData = abi.encodeWithSelector(
+            usdc.mint.selector,
+            account,
+            10e18
+        );
+        PackedUserOperation memory packedOp = packedUserOp.generateSignedUserOp(
+            funcData,
+            helperConfig.getConfigByChainId(block.chainid)
+        );
+        bytes32 hashedUserOp = IEntryPoint(
+            helperConfig.getConfigByChainId(block.chainid).entryPoint
+        ).getUserOpHash(packedOp);
+        bytes32 digest = hashedUserOp.toEthSignedMessageHash();
+        vm.prank(helperConfig.getConfigByChainId(block.chainid).entryPoint);
+        uint256 result = account.validateUserOp(packedOp, hashedUserOp, 1e18);
+        assertEq(result, 0);
+    }
 }
